@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark">
+<title>Scene Swaps and TikTok Research</title>
+<style>
+:root{
+  --ink:#07060c; --panel:#0e0c17; --panel2:#141122; --raise:#191530;
+  --line:#221d38; --line2:#2e2750;
+  --text:#e9e6f5; --dim:#8b85a6; --faint:#5c5779;
+  --accent:#8b6cff; --accent-soft:rgba(139,108,255,.14);
+  --good:#4fd18b; --bad:#ff5f7a; --warn:#ffb545;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ink); color:var(--text); font-family:var(--sans);
+  font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:radial-gradient(900px 500px at 78% -8%, rgba(139,108,255,.11), transparent 70%);
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+.topbar{
+  position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:14px;
+  padding:12px 30px; border-bottom:1px solid var(--line);
+  background:rgba(7,6,12,.86); backdrop-filter:blur(10px);
+}
+.crumb{font-family:var(--mono); font-size:11px; letter-spacing:.13em; color:var(--faint)}
+.crumb b{color:var(--dim); font-weight:400}
+.spacer{flex:1}
+.counter{font-family:var(--mono); font-size:11px; color:var(--faint); font-variant-numeric:tabular-nums}
+.counter b{color:var(--accent); font-weight:400}
+
+.wrap{position:relative; z-index:1; max-width:880px; padding:38px 30px 120px}
+
+h1{font-size:31px; line-height:1.15; letter-spacing:-.025em; margin:0 0 10px; font-weight:650; text-wrap:balance}
+h2{
+  font-size:19px; letter-spacing:-.015em; margin:44px 0 12px; font-weight:600;
+  padding-bottom:9px; border-bottom:1px solid var(--line);
+}
+h3{font-size:15px; margin:26px 0 8px; font-weight:600; letter-spacing:-.01em}
+.eyebrow{font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--accent); margin:0 0 10px}
+.lede{color:var(--dim); font-size:16px; max-width:64ch; margin:0 0 16px}
+p{max-width:70ch; margin:0 0 12px}
+ul{max-width:70ch; margin:0 0 14px; padding-left:20px}
+li{margin:0 0 6px}
+li::marker{color:var(--faint)}
+strong{color:#fff; font-weight:600}
+code{font-family:var(--mono); font-size:12.5px; background:var(--panel2); border:1px solid var(--line); padding:1px 5px; border-radius:4px; color:#c9b9ff}
+.small{font-size:13px; color:var(--dim); max-width:70ch}
+hr{border:0; border-top:1px solid var(--line); margin:34px 0}
+
+.chip{
+  display:inline-block; font-family:var(--mono); font-size:10px; letter-spacing:.1em;
+  padding:3px 8px; border-radius:4px; border:1px solid var(--line2); color:var(--dim); margin:0 6px 6px 0;
+}
+.chip.a{color:#c9b9ff; border-color:#3b2d70; background:var(--accent-soft)}
+.chip.g{color:var(--good); border-color:#1e5c40}
+.chip.w{color:var(--warn); border-color:#6b4d18}
+
+.callout{
+  background:var(--panel); border:1px solid var(--line); border-left:2px solid var(--accent);
+  padding:14px 16px; margin:0 0 20px; border-radius:0 6px 6px 0;
+}
+.callout .k{font-family:var(--mono); font-size:10px; letter-spacing:.16em; color:var(--accent); display:block; margin-bottom:6px}
+.callout.win{border-left-color:var(--good)}
+.callout.win .k{color:var(--good)}
+.callout.point{border-left-color:var(--warn)}
+.callout.point .k{color:var(--warn)}
+.callout p:last-child,.callout ul:last-child{margin-bottom:0}
+
+.rule{border-left:2px solid var(--line2); padding:2px 0 2px 16px; margin:0 0 18px; max-width:70ch}
+.rule.key{border-color:var(--accent)}
+.rule h3{margin-top:0}
+.rule p:last-child{margin-bottom:0}
+
+/* ---------- reel stack ---------- */
+.reels{display:flex; flex-direction:column; gap:14px; margin:0 0 8px}
+.reel{background:var(--panel); border:1px solid var(--line); border-radius:7px}
+.reel .rhead{
+  display:flex; align-items:center; gap:10px; padding:10px 14px; border-bottom:1px solid var(--line);
+  font-family:var(--mono); font-size:9.5px; letter-spacing:.14em; color:var(--faint); flex-wrap:wrap;
+}
+.reel .rhead .n{color:#c9b9ff}
+.reel .rhead .src{margin-left:auto; letter-spacing:0; font-size:11.5px; word-break:break-all}
+.reel .rbody{padding:12px 14px 14px}
+
+/* ---------- ticks ---------- */
+.ticks{display:flex; flex-direction:column; gap:9px}
+.tick{display:flex; align-items:flex-start; gap:10px; cursor:pointer}
+.tick input{
+  appearance:none; -webkit-appearance:none; flex:0 0 auto; margin:2px 0 0;
+  width:16px; height:16px; border:1px solid var(--line2); border-radius:4px;
+  background:#0b0916; cursor:pointer; display:grid; place-items:center;
+}
+.tick input:checked{border-color:var(--accent); background:var(--accent-soft)}
+.tick input:checked::after{content:"✓"; font-size:11px; line-height:1; color:#c9b9ff}
+.tick .lab{font-size:14px}
+.tick .lab b{display:block; font-weight:600; margin-bottom:1px}
+.tick .lab span{color:var(--dim); font-size:13px; display:block}
+.tick .lab span strong{color:var(--text); font-weight:600}
+.tick input:checked ~ .lab b{color:var(--faint); text-decoration:line-through}
+.tick input:checked ~ .lab span{color:var(--faint)}
+.tick input:checked ~ .lab span strong{color:var(--faint)}
+
+.card{background:var(--panel); border:1px solid var(--line); border-radius:7px; padding:15px 16px; margin:0 0 18px}
+.card h3{margin-top:0}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+
+.split{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:0 0 18px}
+@media(max-width:760px){.split{grid-template-columns:1fr}}
+
+.foot{font-family:var(--mono); font-size:10px; letter-spacing:.14em; color:var(--faint); margin-top:40px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="crumb">TASK 03 &nbsp;/&nbsp; <b>SCENE SWAPS &amp; TIKTOK RESEARCH</b></span>
+  <span class="spacer"></span>
+  <span class="counter"><b id="done">0</b> / 10 clips delivered</span>
+</div>
+
+<div class="wrap">
+
+  <p class="eyebrow">CONTENT PRODUCTION · ASSIGNED TASK</p>
+  <h1>Four more rebuilds, and ten TikToks to bring back</h1>
+  <p class="lede">Ten clips — four rebuilds, four variations, two of your own. On top of that, ten TikToks to go and find, and factory recreations of the ones you pick out of them.</p>
+
+  <p>
+    <span class="chip a">4 REBUILDS</span>
+    <span class="chip a">4 VARIATIONS</span>
+    <span class="chip a">2 ORIGINALS</span>
+    <span class="chip g">10 CLIPS</span>
+    <span class="chip w">+ 10 TIKTOKS</span>
+  </p>
+
+  <div class="callout win">
+    <span class="k">YESTERDAY</span>
+    <p>Good work again. The thing that stands out is <strong>how fast you turn feedback around</strong> — you take a note and it's in the next video. That's the hardest habit in this job and you already have it.</p>
+  </div>
+
+  <div class="callout point">
+    <span class="k">TWO POINTERS</span>
+    <ul>
+      <li><strong>Ask more questions.</strong> You're still not asking enough. Anything you're guessing at, Okenve can answer in a minute — a question costs you nothing, a wrong guess costs you a video.</li>
+      <li><strong>Be more creative with your original ideas.</strong> The rebuilds are strong. The originals are where you have the most room to push, so push them.</li>
+    </ul>
+  </div>
+
+  <h2>Where everything is</h2>
+  <ul>
+    <li>The raw videos are in the <strong>prompt bank</strong> — take the original prompt from there.</li>
+    <li>The references are in the <strong>reference image section</strong>.</li>
+    <li>If a prompt <strong>isn't</strong> in the bank, search for it with the <strong>search button on the Factory tab</strong>.</li>
+  </ul>
+
+  <div class="callout">
+    <span class="k">READ FIRST</span>
+    <p>The operator brief — <a href="https://donokenve.github.io/10x-operator-brief/" target="_blank" rel="noopener">donokenve.github.io/10x-operator-brief</a>. Prompts, references, the editor and the quality bar are all in there.</p>
+  </div>
+
+  <h2>The four videos</h2>
+  <p class="small">Each one twice: once matched exactly, once with the change written underneath it.</p>
+
+  <div class="reels">
+
+    <div class="reel">
+      <div class="rhead">
+        <span class="n">VIDEO 01</span>
+        <a class="src" href="https://www.facebook.com/reel/1819185662601380" target="_blank" rel="noopener">facebook.com/reel/1819185662601380</a>
+      </div>
+      <div class="rbody">
+        <div class="ticks">
+          <label class="tick"><input type="checkbox" data-clip="v1a"><span class="lab"><b>A — 1:1 rebuild</b><span>Match it exactly. Same shots, same cuts, same captions, same sound.</span></span></label>
+          <label class="tick"><input type="checkbox" data-clip="v1b"><span class="lab"><b>B — Variation: your call</b><span>This one is yours to choose. Pick <strong>one</strong> deliberate change, make it well, and tell us what you changed when you hand it in.</span></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="reel">
+      <div class="rhead">
+        <span class="n">VIDEO 02</span>
+        <a class="src" href="https://www.facebook.com/reel/2486704021797241" target="_blank" rel="noopener">facebook.com/reel/2486704021797241</a>
+      </div>
+      <div class="rbody">
+        <div class="ticks">
+          <label class="tick"><input type="checkbox" data-clip="v2a"><span class="lab"><b>A — 1:1 rebuild</b><span>Match it exactly. Same shots, same cuts, same captions, same sound.</span></span></label>
+          <label class="tick"><input type="checkbox" data-clip="v2b"><span class="lab"><b>B — Variation: a different Star Wars scene</b><span>Same video, set in a <strong>different Star Wars scene</strong>. If the prompt you need isn't in the bank, search for it with the search button on the Factory tab.</span></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="reel">
+      <div class="rhead">
+        <span class="n">VIDEO 03</span>
+        <a class="src" href="https://www.facebook.com/reel/2015699445974672" target="_blank" rel="noopener">facebook.com/reel/2015699445974672</a>
+      </div>
+      <div class="rbody">
+        <div class="ticks">
+          <label class="tick"><input type="checkbox" data-clip="v3a"><span class="lab"><b>A — 1:1 rebuild</b><span>Match it exactly. Same shots, same cuts, same captions, same sound.</span></span></label>
+          <label class="tick"><input type="checkbox" data-clip="v3b"><span class="lab"><b>B — Variation: new scenery, new outfits</b><span><strong>Different scenery</strong> and <strong>different Star Wars outfits</strong>. The video itself plays out the same way.</span></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="reel">
+      <div class="rhead">
+        <span class="n">VIDEO 04</span>
+        <a class="src" href="https://www.facebook.com/reel/799888716519552" target="_blank" rel="noopener">facebook.com/reel/799888716519552</a>
+      </div>
+      <div class="rbody">
+        <div class="ticks">
+          <label class="tick"><input type="checkbox" data-clip="v4a"><span class="lab"><b>A — 1:1 rebuild</b><span>Match it exactly. Same shots, same cuts, same captions, same sound.</span></span></label>
+          <label class="tick"><input type="checkbox" data-clip="v4b"><span class="lab"><b>B — Variation: different public place, different outfit</b><span><strong>Different public scenery</strong> and a <strong>different Grace outfit</strong>. Keep it somewhere <strong>very busy</strong> — the crowd is the point.</span></span></label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>Two originals</h2>
+  <div class="card">
+    <div class="ticks">
+      <label class="tick"><input type="checkbox" data-clip="o1"><span class="lab"><b>Original 01</b><span>A fresh idea — yours or from the Ideas tab.</span></span></label>
+      <label class="tick"><input type="checkbox" data-clip="o2"><span class="lab"><b>Original 02</b><span>A fresh idea — yours or from the Ideas tab.</span></span></label>
+    </div>
+  </div>
+  <div class="rule key">
+    <p>This is the half to push on. Take the pointer above seriously — go further than the obvious idea, and don't repeat anything from the last two tasks.</p>
+  </div>
+
+  <h2>Ten TikToks</h2>
+  <p>Separate from the clips above. Go and find <strong>ten TikToks</strong> and send them into the channel:</p>
+  <div class="split">
+    <div class="card">
+      <h3>5 tutorials</h3>
+      <p class="small">How-to videos — people showing how they make this kind of content.</p>
+    </div>
+    <div class="card">
+      <h3>5 Star Wars creator videos</h3>
+      <p class="small">General Star Wars creator content, the kind of thing our accounts are up against.</p>
+    </div>
+  </div>
+  <div class="ticks">
+    <label class="tick"><input type="checkbox" data-proc="tt10"><span class="lab"><b>Send all ten into the channel</b><span>5 tutorials and 5 Star Wars creator videos.</span></span></label>
+    <label class="tick"><input type="checkbox" data-proc="ttmake"><span class="lab"><b>Rebuild the ones you pick in the factory</b><span>Choose from your ten and recreate them. <strong>These don't have to be 1:1</strong> — get as close as makes sense and use them to learn what the factory can do.</span></span></label>
+  </div>
+
+  <h2>When you are done</h2>
+  <div class="ticks">
+    <label class="tick"><input type="checkbox" data-proc="line"><span class="lab"><b>Put them in the line</b><span>All ten clips, into the line.</span></span></label>
+    <label class="tick"><input type="checkbox" data-proc="slack"><span class="lab"><b>Upload to Slack for review</b><span>Same ten, in the channel, so we can go through them.</span></span></label>
+    <label class="tick"><input type="checkbox" data-proc="ask"><span class="lab"><b>Ask whenever you need</b><span>Post the question and Okenve will answer it. This is the one we want to see more of.</span></span></label>
+  </div>
+
+  <hr>
+  <p class="foot">TASK 03 · SCENE SWAPS &amp; TIKTOK RESEARCH · TICKS SAVE IN YOUR BROWSER</p>
+
+</div>
+
+<script>
+(function(){
+  var KEY = "task03.ticks.v1";
+  var boxes = Array.prototype.slice.call(document.querySelectorAll(".tick input"));
+  var clips = boxes.filter(function(b){ return b.dataset.clip; });
+  var out = document.getElementById("done");
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e) { saved = {}; }
+
+  function id(b){ return b.dataset.clip || ("p:" + b.dataset.proc); }
+  function count(){ out.textContent = clips.filter(function(b){ return b.checked; }).length; }
+
+  boxes.forEach(function(b){
+    if (saved[id(b)]) b.checked = true;
+    b.addEventListener("change", function(){
+      saved[id(b)] = b.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch(e) {}
+      count();
+    });
+  });
+  count();
+})();
+</script>
+</body>
+</html>
